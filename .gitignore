@@ -1,0 +1,7 @@
+/.idea
+/.vscode
+/.env
+/vendor
+/runtime/*
+!/runtime/.gitignore
+*.log

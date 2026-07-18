@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link rel="Bookmark" href="/favicon.ico" >
+<link rel="Shortcut Icon" href="/favicon.ico" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="/static/lib/html5shiv.js"></script>
+<script type="text/javascript" src="/static/lib/respond.min.js"></script>
+
+<![endif]-->
+<link href="/static/static/h-ui/css/H-ui.css" rel="stylesheet" type="text/css" />
+<link href="/static/static/h-ui.admin/css/H-ui.admin.css" rel="stylesheet" type="text/css" />
+<link href="/static/lib/Hui-iconfont/1.0.8/iconfont.css" rel="stylesheet" type="text/css" />
+{block name="css"}{/block}
+
+<!--[if IE 6]>
+<script type="text/javascript" src="/static/lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>{block name="title"}{/block}</title>
+</head>
+<body>
+{block name="body"}{/block}
+<script type="text/javascript" src="/static/lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="/static/lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="/static/lib/jquery.validation/1.14.0/jquery.validate.js"></script>
+<script type="text/javascript" src="/static/lib/jquery.validation/1.14.0/validate-methods.js"></script>
+<script type="text/javascript" src="/static/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+<script type="text/javascript" src="/static/static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="/static/static/h-ui.admin/js/H-ui.admin.js"></script> 
+{block name="js"}{/block}
+<script>
+function tan(title,url,w,h){
+	if(!w){
+		w='95%';
+	}
+	if(!h){
+		h='95%';
+	}
+	var index = layer.open({
+	  	title:title,
+		type: 2,
+		title: title,
+		area:[w,h],
+		content: url
+	});
+	// layer.full(index);
+}
+function layer_close(){
+	var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+	parent.layer.close(index);
+}
+//关闭窗口后父级窗口自动刷新
+function tanParentRefresh(title,url,w,h){
+	if(!w){
+		w='95%';
+	}
+	if(!h){
+		h='95%';
+	}
+	var index = layer.open({
+	  	title:title,
+		type: 2,
+		area:[w,h],
+		content: url,
+		cancel: function(index, layero){ 
+		  	location.reload();
+		}    
+	});
+}
+/*预览图片*/
+function showImg(img){
+	var imgshow = layer.open({
+	    type: 1,
+		title: false,
+		closeBtn: 0,
+		area: ['auto'],
+		skin: 'layui-layer-nobg', //没有背景色
+		shadeClose: true,
+		content: $('.'+img)
+	});
+}
+$('.skin-minimal input').iCheck({
+	checkboxClass: 'icheckbox-blue',
+	radioClass: 'iradio-blue',
+	increaseArea: '20%'
+})
+// 统一提交返回处理函数
+function success_fun(data,refresh){
+	if(data.code != 1){
+		layer.msg(data.msg,{icon:2,time:1500});
+	}else{
+		layer.msg(data.msg,{icon:1,time:1000},function(){
+			if(refresh == 1){
+				location.reload();
+			}else if(refresh == 2){
+				parent.location.reload();
+			}
+		});
+		window.setTimeout(function(){
+			
+		},1000)
+	}
+}
+// 统一删除方法
+function del(url,ids){
+	layer.confirm('确认删除'+(typeof(ids)=='string' ? '这条' : '选中的')+'数据吗？',{
+		btn:['确认','取消']
+	},function(index){
+		var load = layer.msg('正在提交，请勿刷新', {icon: 16,shade: 0.1,time:0});
+		if(typeof(ids)=='string'){
+			ids = [ids];
+		}
+		$.ajax({
+			type: 'post',
+			url,
+			data:{ids},
+			dataType: 'json',
+			success: function(data){
+				success_fun(data,1);
+			},
+			error:function(data) {
+				layer.msg('系统错误',{icon:2,time:1000});
+			},
+			complete: function(){
+				layer.close(load);
+			}
+		});		
+	});
+}
+function delAll(url){
+	//获取选中id
+	let ids = [];
+	$('.checklist:checked').each(function(index, el) {
+		ids.push($(this).val());
+	});
+	del(url,ids);
+}
+//全选脚本
+$('#checkall').change(function(){
+	$('.checklist').prop('checked',$(this).prop('checked'));
+})
+// 排序
+function sort(url){
+	let data = [];
+	$('.weigh').each(function(index, el) {
+		// [{id:weigh},{id1:weigh1}]
+		data.push({id:$(this).attr('data-id'),weigh:$(this).val()});
+	});	
+	var load = layer.msg('正在排序，请勿刷新', {icon: 16,shade: 0.1,time:0});
+	$.ajax({
+		type: 'post',
+		url,
+		data:{data},
+		dataType: 'json',
+		success: function(data){
+			success_fun(data,1);
+		},
+		error:function(data) {
+			layer.msg('系统错误',{icon:2,time:1000});
+		},
+		complete: function(){
+			layer.close(load);
+		}
+	});
+}
+
+</script>
+</body>
+</html>
