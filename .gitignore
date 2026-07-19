@@ -1,6 +1,7 @@
 /.idea
 /.vscode
 /.env
+/.env.docker
 /vendor
 /runtime/*
 !/runtime/.gitignore

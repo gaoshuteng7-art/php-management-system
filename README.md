@@ -58,6 +58,41 @@ http://127.0.0.1:8000/admin/login/index
 - 上传文件限制为不超过 5 MB 的常见图片格式。
 - 生产环境请关闭 `APP_DEBUG` 并使用 HTTPS。
 
+## Docker 一键启动
+
+确保 Docker Desktop 已启动，然后复制 Docker 环境变量文件：
+
+```powershell
+Copy-Item .env.docker.example .env.docker
+```
+
+修改 `.env.docker` 中的两个数据库密码，再构建并启动 Nginx、PHP-FPM 和 MySQL：
+
+```powershell
+docker compose --env-file .env.docker up -d --build
+```
+
+浏览器访问：
+
+```text
+http://127.0.0.1:8080/admin/login/index
+```
+
+查看容器状态和日志：
+
+```powershell
+docker compose --env-file .env.docker ps
+docker compose --env-file .env.docker logs -f
+```
+
+停止容器：
+
+```powershell
+docker compose --env-file .env.docker down
+```
+
+MySQL 数据保存在 `mysql_data` 数据卷中，普通的 `down` 不会删除数据。不要随意执行 `down -v`；它会删除数据卷。数据卷用于持久化，但不能代替数据库备份。
+
 ## License
 
 [Apache License 2.0](LICENSE.txt)

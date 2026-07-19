@@ -1,2 +1,1 @@
-*
-!.gitignore
+# Static assets are tracked so a fresh clone can be built without unpacking static.rar.

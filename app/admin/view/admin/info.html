@@ -1,0 +1,99 @@
+{extend name="public/base" /}
+
+{block name="body"}
+<div class="page-container">
+	<form class="form form-horizontal" id="form-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>用户名</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" disabled class="input-text" value="{$adminInfo.username}" placeholder="" id="" name="">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>密码</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="password" class="input-text" value="" placeholder="不输入不修改" id="password" name="password">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>确认密码</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="password" class="input-text" value="" placeholder="请输入确认密码" id="" name="password2">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>姓名</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="{$adminInfo.name}" placeholder="请输入" id="" name="name">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>电话</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text " value="{$adminInfo.tel}" placeholder="请输入" id="" name="tel">
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+				<button class="btn btn-primary radius" type="submit"> 提交</button>
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+{/block}
+
+{block name="js"}
+<script type="text/javascript">
+$(function(){
+	$("#form-add").validate({
+		rules:{
+			password:{
+				
+			},
+			password2:{
+				equalTo: "#password"
+			},
+			name:{
+				required:true,
+			},
+			tel:{
+				required:true,
+				isPhone:true,
+			}
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			var indexLayer = layer.load(2, {shade: 0.5});
+			$(form).ajaxSubmit({
+				type: 'post',
+				url: "/admin/admin/info" ,
+				success: function(data){
+					layer.close(indexLayer);
+					if(data.code == 0){
+						layer.msg(data.msg,{icon:1,time:1000},function(){
+							if($('input[name="password"]').val()){
+								parent.location.href='/admin/login/loginOut';
+								return;
+							}
+							
+							var index = parent.layer.getFrameIndex(window.name);
+							parent.layer.close(index);
+						});
+					}else{
+						layer.msg(data.msg,{icon:2,time:1000});
+					}
+				},
+                error: function(XmlHttpRequest, textStatus, errorThrown){
+					layer.msg('error!',{icon:1,time:1000});
+				}
+			});
+		}
+	});
+});
+</script>
+{/block}
+

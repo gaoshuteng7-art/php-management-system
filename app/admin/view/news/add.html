@@ -1,0 +1,150 @@
+{extend name="public/base" /} {block name="css"}
+<link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet" />
+<style>
+	#editor—wrapper {
+		border: 1px solid #ccc;
+		z-index: 100;
+		/* 按需定义 */
+	}
+
+	#toolbar-container {
+		border-bottom: 1px solid #ccc;
+	}
+
+	#editor-container {
+		height: 500px;
+	}
+</style>
+{/block} {block name="body"}
+<div class="page-container">
+	<form class="form form-horizontal" id="form-add" enctype="multipart/form-data">
+		<input type="hidden" name="id" value="{$row.id ?? 0}" />
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>标题</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="{$row.title ?? ''}" placeholder="请输入" name="title" />
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>描述</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<textarea class="textarea" height="60" name="description" value="{$row.description ?? ''}"></textarea>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>发布时间</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="{$row.addtime ?? ''}" placeholder="请输入" id=""
+					name="addtime" onfocus="WdatePicker()" />
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>作者</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="{$row.author ?? ''}" placeholder="请输入" id=""
+					name="author" />
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>封面图</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="file" name="file" accept="image/*" />
+				{if isset($row.picurl) && $row.picurl}
+				<img src="{$row.picurl}" width="50" alt="">
+				{/if}
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>内容</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<div id="editor—wrapper">
+					<div id="toolbar-container"><!-- 工具栏 --></div>
+					<div id="editor-container"><!-- 编辑器 --></div>
+				</div>
+				<textarea name="content" hidden id="content"></textarea>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-2"><span class="c-red">*</span>状态</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<label><input type="radio" name="status" value="1" {if (isset($row.id) && $row.status==1) ||
+						!isset($row.id)} checked {/if}> 启用</label>
+				<label><input type="radio" name="status" value="0" {if isset($row.id) && $row.status==0} checked {/if}>
+					禁用</label>
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+				<button class="btn btn-primary radius" type="submit">提交</button>
+				<button onClick="layer_close();" class="btn btn-default radius" type="button">
+					&nbsp;&nbsp;取消&nbsp;&nbsp;
+				</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+{/block} {block name="js"}
+<script type="text/javascript" src="/static/lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
+<script type="text/javascript">
+	$(function () {
+		$("#form-add").validate({
+			rules: {
+				title: {
+					required: true,
+				},
+			},
+			onkeyup: false,
+			focusCleanup: true,
+			success: "valid",
+			submitHandler: function (form) {
+				var load = layer.msg("正在提交，请勿刷新", {
+					icon: 16,
+					shade: 0.1,
+					time: 0,
+				});
+				$(form).ajaxSubmit({
+					type: "post",
+					url: "/admin/news/add",
+					success: function (data) {
+						success_fun(data, 2);
+					},
+					error: function (XmlHttpRequest, textStatus, errorThrown) {
+						layer.msg("error!", { icon: 1, time: 1000 });
+					},
+					complete: function () {
+						layer.close(load);
+					},
+				});
+			},
+		});
+	});
+
+	const { createEditor, createToolbar } = window.wangEditor;
+
+	const editorConfig = {
+		placeholder: "Type here...",
+		onChange(editor) {
+			const html = editor.getHtml();
+			$('#content').val(html)
+		},
+	};
+
+	const editor = createEditor({
+		selector: "#editor-container",
+		html: '<?php if(isset($row['content'])){ echo html_entity_decode($row['content']);} ?> ',
+		config: editorConfig,
+		mode: "default", // or 'simple'
+	});
+
+	const toolbarConfig = {};
+
+	const toolbar = createToolbar({
+		editor,
+		selector: "#toolbar-container",
+		config: toolbarConfig,
+		mode: "default", // or 'simple'
+	});
+</script>
+{/block}
