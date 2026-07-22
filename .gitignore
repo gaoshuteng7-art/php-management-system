@@ -6,3 +6,4 @@
 /runtime/*
 !/runtime/.gitignore
 *.log
+/docker/nginx/certs/

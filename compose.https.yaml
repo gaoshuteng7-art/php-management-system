@@ -1,0 +1,7 @@
+services:
+  nginx:
+    ports:
+      - "127.0.0.1:${HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./docker/nginx/https.conf:/etc/nginx/conf.d/https.conf:ro
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
